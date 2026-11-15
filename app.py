@@ -12,8 +12,20 @@ MODEL_DIR = BASE_DIR / "model"
 with open(MODEL_DIR / "features.json", "r", encoding="utf-8") as f:
     FEATURES = json.load(f)
 
-ARTIFACTS = joblib.load(MODEL_DIR / "model_artifacts.pkl")
-DEFAULTS = ARTIFACTS["input_defaults"]
+import numpy as np
+import numpy.random._pickle as np_random_pickle
+
+_original_bit_generator_ctor = np_random_pickle.__bit_generator_ctor
+
+def _compatible_bit_generator_ctor(bit_generator_name="MT19937"):
+    if isinstance(bit_generator_name, type):
+        if issubclass(bit_generator_name, np.random.BitGenerator):
+            return bit_generator_name()
+    return _original_bit_generator_ctor(bit_generator_name)
+
+np_random_pickle.__bit_generator_ctor = _compatible_bit_generator_ctor
+
+ARTIFACTS = joblib.load(MODEL_DIR / "model_artifacts.pkl")DEFAULTS = ARTIFACTS["input_defaults"]
 
 # The saved scaler and the four prediction branches were trained on this exact
 # 15-feature order. The saved imputer was fitted on the original 20-column
