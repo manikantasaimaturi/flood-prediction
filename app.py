@@ -25,7 +25,8 @@ def _compatible_bit_generator_ctor(bit_generator_name="MT19937"):
 
 np_random_pickle.__bit_generator_ctor = _compatible_bit_generator_ctor
 
-ARTIFACTS = joblib.load(MODEL_DIR / "model_artifacts.pkl")DEFAULTS = ARTIFACTS["input_defaults"]
+ARTIFACTS = joblib.load(MODEL_DIR / "model_artifacts.pkl")
+DEFAULTS = ARTIFACTS["input_defaults"]
 
 # The saved scaler and the four prediction branches were trained on this exact
 # 15-feature order. The saved imputer was fitted on the original 20-column
