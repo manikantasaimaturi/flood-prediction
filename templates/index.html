@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Flood Prediction System</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <div class="eyebrow">MACHINE LEARNING • FLOOD RISK ESTIMATION</div>
+      <h1>Flood Prediction System</h1>
+      <p>Enter the 15 selected environmental and infrastructure indicators to estimate flood probability using the saved hybrid boosting models.</p>
+    </header>
+
+    <section class="panel">
+      <div class="section-heading">
+        <div><span class="step">01</span><h2>Input parameters</h2></div>
+        <p>Use numeric values. The initial values are the saved training medians.</p>
+      </div>
+      <form method="post">
+        <div class="field-grid">
+          {% for feature in features %}
+          <label class="field">
+            <span>{{ feature }}</span>
+            <input type="number" name="{{ feature }}" step="any" required value="{{ values[feature] }}">
+          </label>
+          {% endfor %}
+        </div>
+        <div class="form-footer">
+          <label class="model-select">Preferred model view
+            <select name="model">
+              <option {% if selected_model == "SVM + Boosting" %}selected{% endif %}>SVM + Boosting</option>
+              <option {% if selected_model == "CNN + Boosting" %}selected{% endif %}>CNN + Boosting</option>
+              <option {% if selected_model == "Decision Tree + Boosting" %}selected{% endif %}>Decision Tree + Boosting</option>
+              <option {% if selected_model == "Random Forest + Boosting" %}selected{% endif %}>Random Forest + Boosting</option>
+            </select>
+          </label>
+          <button type="submit">Predict flood probability <span>→</span></button>
+        </div>
+      </form>
+      {% if error %}<div class="alert">{{ error }}</div>{% endif %}
+    </section>
+
+    {% if predictions %}
+    <section class="panel results">
+      <div class="section-heading">
+        <div><span class="step">02</span><h2>Prediction results</h2></div>
+        <p>All four saved model branches are evaluated for the submitted input.</p>
+      </div>
+      <div class="result-grid">
+        {% for model, score in predictions.items() %}
+        <article class="result-card {% if model == selected_model %}selected{% endif %}">
+          <div class="model-name">{{ model }}</div>
+          <div class="score">{{ "%.4f"|format(score) }}</div>
+          <div class="percent">{{ "%.2f"|format(score * 100) }}%</div>
+          <div class="risk {% if score >= 0.5 %}high{% else %}low{% endif %}">
+            {% if score >= 0.5 %}Above 0.50 threshold{% else %}Below 0.50 threshold{% endif %}
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+      <p class="disclaimer">The 0.50 cutoff is an illustrative threshold used by this project, not an operational flood-warning threshold. This model was trained on a synthetic tabular dataset and must not be used for real emergency decisions.</p>
+    </section>
+    {% endif %}
+    <footer>Flood Prediction • Hybrid Boosting Models</footer>
+  </main>
+</body>
+</html>
